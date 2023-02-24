@@ -1,2 +1,2 @@
-.idea
-./node/node_modules
+/mysql
+/node/node_modules
