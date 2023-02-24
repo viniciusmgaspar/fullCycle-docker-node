@@ -40,7 +40,7 @@ app.get("/", async (req, res) => {
 
   res.send(`
     <div>
-        <h1>Full Cycle Rocks!</h1>
+        <h1>Full Cycle Rocks!!</h1>
         <p>
             - Nomes cadastrados no banco mySql.
         </p>
