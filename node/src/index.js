@@ -2,56 +2,35 @@ import express from 'express';
 import mysql from 'mysql';
 import faker from 'faker';
 
+
+const app = express()
+const port = process.env.APP_PORT || 3333
+
 const config = {
   host: 'db',
   user: 'root',
   password: 'root',
-  database: 'nodedb'
-};
+  database: 'nodedb',
+}
 
-const port = 3333;
-const app = express();
 
-const insertRow = (connection) => new Promise((resolve) => {
-  const nome = faker.name.findName()
-  const sql = `INSERT INTO people(name) values('${nome.replace(/["']/g, '')}');`
-  connection.query(sql, (error, result) => {
-    resolve(result);
-  });
-});
+const connection = mysql.createConnection(config)
 
-const getPeople = (connection) => new Promise((resolve) => {
-  connection.query('SELECT * FROM people;', (error, result) => {
-    resolve(result);
-  });
-})
+app.get('/', (req, res) => {
+  const name = faker.name.findName()
 
-app.get("/", async (req, res) => {
-  const connection = mysql.createConnection(config);
-  await insertRow(connection);
+  connection.query(`INSERT INTO people (name) VALUES ('${name}')`)
 
-  const results = await getPeople(connection);
-
-  await connection.end();
-
-  const names = results.map(result => {
-    return `<tr><td>${result.name}</td></tr>`;
+  connection.query(`SELECT name FROM people`, (error, results, fields) => {
+    res.send(`
+      <h1>Full Cycle Rocks!</h1>
+      <ol>
+        ${!!results.length ? results.map(el => `<li>${el.name}</li>`).join('') : ''}
+      </ol>
+    `)
   })
-
-  res.send(`
-    <div>
-        <h1>Full Cycle Rocks!!</h1>
-        <p>
-            - Nomes cadastrados no banco mySql.
-        </p>
-        <table border="1">
-          <tr><td>Nome</td></tr>
-            ${names.join("\n")}
-        </table>
-    </div>
-  `);
 })
 
 app.listen(port, () => {
-  console.log(`Server listening on port ${port}!`);
+  console.log('Up on:', port);
 })
